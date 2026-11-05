@@ -1,0 +1,10 @@
+.venv
+.git
+.env
+storage
+*.db
+*.sqlite3
+design
+__pycache__
+.pytest_cache
+detector/models

@@ -1,0 +1,5 @@
+.version-panel{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px}
+.version-panel p{margin:7px 0 0}.version-panel label{font-size:12px;font-weight:700;color:#587383}
+.version-panel select{display:block;margin-top:7px;border:1px solid #d5e1e7;border-radius:8px;padding:9px;color:#29495b;background:#fbfdfe}
+.version-panel .message{flex-basis:100%;margin:0}.supplement-preview{margin:15px 0;padding:12px;border:1px solid #dce9ed;border-radius:8px}
+.supplement-preview img{display:block;max-width:100%;max-height:500px;object-fit:contain;margin:12px auto 0}

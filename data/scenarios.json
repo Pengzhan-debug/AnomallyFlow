@@ -1,0 +1,14 @@
+[
+  {"id":"SC-01","name":"可信正常图像","batch_id":"BA-2026-1001","detector":"NORMAL","risk":"LOW","expected":"任务完成，不创建异常工单"},
+  {"id":"SC-02","name":"中风险异常图像","batch_id":"BA-2026-1002","detector":"ABNORMAL","risk":"MEDIUM","expected":"工程师审批后创建一张工单"},
+  {"id":"SC-03","name":"高风险异常图像","batch_id":"BA-2026-1003","detector":"ABNORMAL","risk":"HIGH","expected":"工程师与不同账户主管共同批准后创建工单"},
+  {"id":"SC-04","name":"视觉检测不确定","batch_id":"BA-2026-1004","detector":"UNCERTAIN","risk":"MEDIUM","expected":"进入调查与人工复核，不自动放行"},
+  {"id":"SC-05","name":"视觉检测超时","batch_id":"BA-2026-1005","detector":"ERROR","risk":"UNKNOWN","expected":"任务需人工处理，不显示正常"},
+  {"id":"SC-06","name":"知识检索无结果","batch_id":"BA-2026-1006","detector":"ABNORMAL","risk":"MEDIUM","expected":"报告标注证据不足，不虚构引用"},
+  {"id":"SC-07","name":"高风险主管驳回","batch_id":"BA-2026-1007","detector":"ABNORMAL","risk":"HIGH","expected":"不创建工单，保留两阶段审批历史"},
+  {"id":"SC-08","name":"重复审批提交","batch_id":"BA-2026-1008","detector":"ABNORMAL","risk":"MEDIUM","expected":"同一决定返回原结果，最多一张工单"},
+  {"id":"SC-09","name":"复检不通过返工","batch_id":"BA-2026-1009","detector":"ABNORMAL","risk":"MEDIUM","expected":"工单返回处理中，原复检和处置版本保留"},
+  {"id":"SC-10","name":"复检无法判断","batch_id":"BA-2026-1010","detector":"ABNORMAL","risk":"MEDIUM","expected":"保持待复检并补拍，不能关闭工单"},
+  {"id":"SC-11","name":"跨租户越权查询","batch_id":"BA-2026-1011","detector":"ABNORMAL","risk":"HIGH","expected":"返回 403 或 404 并记录审计"},
+  {"id":"SC-12","name":"报告引用失效","batch_id":"BA-2026-1012","detector":"ABNORMAL","risk":"MEDIUM","expected":"证据核验失败并转人工处理"}
+]

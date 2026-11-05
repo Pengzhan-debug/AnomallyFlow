@@ -1,0 +1,6 @@
+[
+  {"key":"SOP-SURFACE","type":"sop","product":"VALVE-A","version":"v1","title":"演示 SOP：阀体表面复核与补拍","content":"阀体表面异常复核：对疑似划痕区域重新取样并补拍，调整光照以排除反光。记录批次、取样位置和拍摄条件。真实缺陷需实物抽检确认。","valid_from":"2026-01-01T00:00:00+00:00","valid_to":null},
+  {"key":"CASE-REFLECTION","type":"case","product":"VALVE-A","version":"v1","title":"演示案例：阀体反光导致疑似划痕","content":"历史合成案例中，阀体表面图像出现疑似划痕，补拍改变光照后该特征消失。该案例仅提示成像干扰的可能性，不能证明当前批次具有相同根因。","valid_from":"2026-01-01T00:00:00+00:00","valid_to":null},
+  {"key":"SOP-EXPIRED","type":"sop","product":"VALVE-A","version":"v0","title":"已过期演示 SOP","content":"阀体表面异常划痕复拍反光旧规范。","valid_from":"2025-01-01T00:00:00+00:00","valid_to":"2026-01-01T00:00:00+00:00"},
+  {"key":"SOP-OTHER","type":"sop","product":"PUMP-B","version":"v1","title":"其他产品演示 SOP","content":"阀体表面异常划痕复拍反光。","valid_from":"2026-01-01T00:00:00+00:00","valid_to":null}
+]

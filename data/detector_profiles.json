@@ -1,0 +1,8 @@
+{
+  "VALVE-A": {
+    "model_version": "patchcore-mvtec-bottle-1",
+    "threshold_version": "valve-a-demo-1",
+    "normal_max": 0.5,
+    "abnormal_min": 0.545
+  }
+}

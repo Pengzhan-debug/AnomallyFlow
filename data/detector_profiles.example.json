@@ -1,0 +1,8 @@
+{
+  "VALVE-A": {
+    "model_version": "replace-with-validated-model-version",
+    "threshold_version": "replace-with-calibrated-threshold-version",
+    "normal_max": 0.35,
+    "abnormal_min": 0.8
+  }
+}

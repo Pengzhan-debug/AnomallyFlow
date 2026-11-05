@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QualityFlow AI 2.0 · 登录页设计</title>
+  <link rel="stylesheet" href="prototype.css">
+  <link rel="stylesheet" href="login.css">
+</head>
+<body>
+  <main class="login-shell">
+    <section class="login-intro"><div class="login-brand"><span class="brand-mark">Q</span><span><strong>QualityFlow</strong><small>AI 2.0</small></span></div><div class="intro-copy"><div class="intro-kicker">QUALITY OPERATIONS PLATFORM</div><h1>让每一次质量异常<br>都有据可查。</h1><p>从图像检测、证据调查到人工审批与复检闭环，在同一条任务链上完成。</p><div class="intro-steps"><span>01 检测</span><i></i><span>02 调查</span><i></i><span>03 审批</span><i></i><span>04 闭环</span></div></div><div class="login-intro-foot">产品设计原型 · 模拟工厂 A · 非真实生产系统</div></section>
+    <section class="login-form-area"><div class="login-form-wrap"><div class="login-overline">欢迎使用 QualityFlow AI 2.0</div><h2>登录工作台</h2><p>使用已授权账户访问对应的任务和工单。</p><div class="login-demo-note"><b>演示说明</b><span>此页面用于评审登录与错误反馈。未连接认证服务，也不保存输入内容。</span></div><form id="login-form" novalidate><label class="login-field">账号 <span>*</span><input id="login-account" type="text" autocomplete="username" placeholder="输入工作账号"><small id="account-error"></small></label><label class="login-field">密码 <span>*</span><div class="password-wrap"><input id="login-password" type="password" autocomplete="current-password" placeholder="输入密码"><button type="button" id="toggle-password" aria-label="显示密码">显示</button></div><small id="password-error"></small></label><div class="login-helper"><label><input type="checkbox" id="remember-session"> 在此设备保留登录状态</label><span>忘记密码请联系管理员</span></div><label class="auth-preview">错误状态预览 <select id="auth-preview"><option value="offline">服务未连接</option><option value="invalid">凭据错误</option><option value="expired">会话已过期</option><option value="forbidden">无资源权限</option></select></label><button class="login-submit" type="submit">登录 <span>→</span></button><div class="login-response hidden" id="login-response" role="status"></div></form><div class="demo-accounts"><strong>演示账户预览</strong><p>质检员、质量工程师、质量主管、系统管理员与审计员的权限入口在工作台内可切换预览。</p><a href="qualityflow-prototype.html">进入界面设计原型 ↗</a></div></div><div class="login-form-foot">访问范围由服务端的身份、角色、租户与资源授权共同决定。</div></section>
+  </main>
+  <script>
+    const form=document.getElementById('login-form');
+    document.getElementById('toggle-password').addEventListener('click',()=>{const field=document.getElementById('login-password');field.type=field.type==='password'?'text':'password';document.getElementById('toggle-password').textContent=field.type==='password'?'显示':'隐藏'});
+    form.addEventListener('submit',event=>{event.preventDefault();const account=document.getElementById('login-account').value.trim(),password=document.getElementById('login-password').value;document.getElementById('account-error').textContent=account?'':'请输入工作账号。';document.getElementById('password-error').textContent=password?'':'请输入密码。';const response=document.getElementById('login-response');response.classList.toggle('hidden',!account||!password);if(account&&password){const state=document.getElementById('auth-preview').value;response.textContent={offline:'这是登录页设计稿，尚未连接认证服务。正式系统将校验凭据并返回授权会话。',invalid:'账号或密码不正确。请检查后重试；错误详情不会暴露具体字段。',expired:'登录状态已过期。请重新验证身份后继续操作。',forbidden:'当前账户没有访问该资源的权限。请联系管理员核对授权范围。'}[state]}});
+  </script>
+</body>
+</html>

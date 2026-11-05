@@ -1,0 +1,110 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: qualityflow
+      POSTGRES_USER: qualityflow
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U qualityflow -d qualityflow"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  minio:
+    image: minio/minio:latest
+    profiles: ["object-storage"]
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?set MINIO_ROOT_USER in .env}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD in .env}
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9001:9001"
+
+  # Opt-in: `docker compose --profile detector up --build`.
+  # Set DETECTOR_MODE=http and DETECTOR_URL=http://detector:8080/inspect in .env
+  # only after data/detector_profiles.json contains a calibrated product.
+  detector:
+    profiles: ["detector"]
+    build:
+      context: .
+      dockerfile: detector/Dockerfile
+    restart: unless-stopped
+    environment:
+      DETECTOR_PROFILES_PATH: /app/data/detector_profiles.json
+      DETECTOR_REGISTRY_PATH: /app/detector/models/registry.json
+      DETECTOR_DEVICE: ${DETECTOR_DEVICE:-cpu}
+      DETECTOR_API_KEY: ${DETECTOR_API_KEY:-}
+      DETECTOR_STUB: "0"
+    volumes:
+      - ./data:/app/data:ro
+      - ./detector/models:/app/detector/models:ro
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/healthz', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  api:
+    build: .
+    env_file: .env
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: qualityflow
+      DB_USER: qualityflow
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      STORAGE_ROOT: /app/storage
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./storage:/app/storage
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=2)"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  worker:
+    build: .
+    command: ["python", "-m", "qualityflow.worker"]
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: qualityflow
+      DB_USER: qualityflow
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      STORAGE_ROOT: /app/storage
+    depends_on:
+      api:
+        condition: service_healthy
+    volumes:
+      - ./storage:/app/storage
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
