@@ -1,0 +1,31 @@
+{
+  "defect_summary": "设计样例：检测标记疑似表面异常，原因仍待核验。",
+  "observed_facts": [
+    {
+      "text": "提供给调查的检测结果为 ABNORMAL。",
+      "evidence_ids": [
+        "EV-QI-DESIGN-EXAMPLE-D"
+      ]
+    }
+  ],
+  "hypotheses": [
+    {
+      "cause": "成像反光或真实表面缺陷均需进一步区分。",
+      "supporting_evidence_ids": [
+        "EV-QI-DESIGN-EXAMPLE-D"
+      ],
+      "contradicting_evidence_ids": [],
+      "uncertainty": "现有证据不足以确认具体原因。",
+      "verification_plan": "由质检员同位置改变光照补拍，并由工程师核对实物。"
+    }
+  ],
+  "missing_evidence": [
+    "同位置不同光照的补拍结果",
+    "现场实物核验记录"
+  ],
+  "recommended_actions": [
+    "安排补拍及人工实物核验，随后更新报告。"
+  ],
+  "risk_level": "MEDIUM",
+  "evidence_sufficient": false
+}

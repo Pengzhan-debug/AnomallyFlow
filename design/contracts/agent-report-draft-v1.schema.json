@@ -1,0 +1,137 @@
+{
+  "$defs": {
+    "Fact": {
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "title": "Evidence Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "text",
+        "evidence_ids"
+      ],
+      "title": "Fact",
+      "type": "object"
+    },
+    "Hypothesis": {
+      "additionalProperties": false,
+      "properties": {
+        "cause": {
+          "title": "Cause",
+          "type": "string"
+        },
+        "supporting_evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supporting Evidence Ids",
+          "type": "array"
+        },
+        "contradicting_evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Contradicting Evidence Ids",
+          "type": "array"
+        },
+        "uncertainty": {
+          "title": "Uncertainty",
+          "type": "string"
+        },
+        "verification_plan": {
+          "title": "Verification Plan",
+          "type": "string"
+        }
+      },
+      "required": [
+        "cause",
+        "supporting_evidence_ids",
+        "contradicting_evidence_ids",
+        "uncertainty",
+        "verification_plan"
+      ],
+      "title": "Hypothesis",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "defect_summary": {
+      "maxLength": 2000,
+      "minLength": 1,
+      "title": "Defect Summary",
+      "type": "string"
+    },
+    "observed_facts": {
+      "items": {
+        "$ref": "#/$defs/Fact"
+      },
+      "maxItems": 20,
+      "minItems": 1,
+      "title": "Observed Facts",
+      "type": "array"
+    },
+    "hypotheses": {
+      "items": {
+        "$ref": "#/$defs/Hypothesis"
+      },
+      "maxItems": 10,
+      "title": "Hypotheses",
+      "type": "array"
+    },
+    "missing_evidence": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 20,
+      "minItems": 1,
+      "title": "Missing Evidence",
+      "type": "array"
+    },
+    "recommended_actions": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 20,
+      "minItems": 1,
+      "title": "Recommended Actions",
+      "type": "array"
+    },
+    "risk_level": {
+      "pattern": "^(LOW|MEDIUM|HIGH)$",
+      "title": "Risk Level",
+      "type": "string"
+    },
+    "evidence_sufficient": {
+      "title": "Evidence Sufficient",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "defect_summary",
+    "observed_facts",
+    "hypotheses",
+    "missing_evidence",
+    "recommended_actions",
+    "risk_level",
+    "evidence_sufficient"
+  ],
+  "title": "ReportDraft",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:qualityflow:agent-report-draft:v1",
+  "$comment": "Design draft only. Generated from the pinned existing ReportDraft. Authorization, evidence ownership, risk floor, budgets and single-image policy are enforced by the server."
+}
