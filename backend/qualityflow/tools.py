@@ -38,6 +38,15 @@ def history_version(row: InspectionRow) -> str:
     return sha256(history_excerpt(row).encode()).hexdigest()[:16]
 
 
+def inspection_history(db: Session, task: InspectionRow, limit: int) -> list[InspectionRow]:
+    return list(db.scalars(select(InspectionRow).where(
+        InspectionRow.tenant_id == task.tenant_id,
+        InspectionRow.product_code == task.product_code,
+        InspectionRow.id != task.id, InspectionRow.created_at <= task.created_at,
+        InspectionRow.detection_status.is_not(None),
+    ).order_by(InspectionRow.created_at.desc(), InspectionRow.id).limit(limit)))
+
+
 def current_document(row: KnowledgeRow) -> bool:
     def aware(value):
         return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value
@@ -114,12 +123,7 @@ class ReadOnlyTools:
                 if not isinstance(limit, int) or isinstance(limit, bool) or not 1 <= limit <= 10:
                     error = "INVALID_TOOL_ARGUMENTS"
                 elif name == ToolName.HISTORY:
-                    rows = self.db.scalars(select(InspectionRow).where(
-                        InspectionRow.tenant_id == self.tenant_id,
-                        InspectionRow.product_code == task.product_code,
-                        InspectionRow.id != task.id, InspectionRow.created_at <= task.created_at,
-                        InspectionRow.detection_status.is_not(None))
-                        .order_by(InspectionRow.created_at.desc(), InspectionRow.id).limit(limit)).all()
+                    rows = inspection_history(self.db, task, limit)
                     data = [{"task_id": row.id, "detection_status": row.detection_status,
                              "model_version": row.model_version} for row in rows]
                     evidence = [{"id": f"{self.prefix}-H-{sha256(row.id.encode()).hexdigest()[:8]}",

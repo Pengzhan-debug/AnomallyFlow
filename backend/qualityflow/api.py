@@ -26,11 +26,12 @@ from .domain import (AccountService, ApprovalDecision, ApprovalRecord, ApprovalR
                      Reinspection, ReinspectionDecision, ReinspectionResult, RiskLevel,
                      Role, WorkOrder, WorkOrderStatus)
 from .config import database_url_from_env
-from .tools import ReadOnlyTools, ToolName
+from .tools import ReadOnlyTools, ToolName, inspection_history
 from .supplements import supplement_hash
 from .detector import DetectorConfigError, detector_config
 from .samples import register_sample_routes
-from .dsh_console import register_dsh_console_routes
+from .dsh_console import DshConsoleError, register_dsh_console_routes
+from .dsh_inspection import DshInspection
 
 
 MAX_IMAGE_BYTES = 20 * 1024 * 1024
@@ -896,6 +897,31 @@ def create_app(
 
     register_dsh_console_routes(app, storage_root=storage_root, db_session=db_session,
                                 current_user=current_user, require_role=require_role, api_error=APIError)
+    app.state.dsh_inspection = DshInspection(app.state.dsh_console)
+
+    @app.post("/api/v1/inspections/{task_id}/dsh-brief")
+    def dsh_brief(task_id: str, user: UserRow = Depends(current_user), db: Session = Depends(db_session)):
+        require_role(user, {Role.ENGINEER, Role.MANAGER, Role.ADMIN}, db, "dsh.inspection.brief")
+        task = visible_task(db, task_id, user)
+        if task.detection_status not in {"NORMAL", "ABNORMAL", "UNCERTAIN"}:
+            raise APIError(409, "DSH_INSPECTION_NOT_READY", "该任务暂无可供调查的检测结论。")
+        batch = db.get(BatchRow, task.batch_id)
+        if batch is None or batch.tenant_id != task.tenant_id:
+            raise APIError(404, "NOT_FOUND", "任务批次不可用")
+        snapshot = {
+            "task": {"task_id": task.id, "detection_status": task.detection_status,
+                     "model_version": task.model_version, "threshold_version": task.threshold_version,
+                     "detector_mode": (task.detector_config or {}).get("mode", "mock")},
+            "batch": {"batch_id": batch.id, "product_code": batch.product_code, "equipment_id": batch.equipment_id},
+            "history": [{"task_id": row.id, "detection_status": row.detection_status,
+                         "model_version": row.model_version} for row in inspection_history(db, task, limit=5)],
+        }
+        db.rollback()
+        try:
+            return app.state.dsh_inspection.run(snapshot)
+        except DshConsoleError as exc:
+            raise APIError(exc.status, exc.code, str(exc)) from None
+
     return app
 
 

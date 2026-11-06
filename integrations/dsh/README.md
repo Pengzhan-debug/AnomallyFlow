@@ -1,6 +1,6 @@
 # QualityFlow 的 DSH 控制台
 
-登录 React 工作台后，在左侧打开 **DSH 控制台**。调查会话按现有任务权限展示巡检任务、报告版本和只读工具轨迹。巡检调查仍由 QualityFlow 的 LangGraph 流程执行。管理员可以从同一入口管理独立的 DSH 配置。
+登录 React 工作台后，在左侧打开 **DSH 控制台**。调查会话按现有任务权限展示巡检任务、报告版本和只读工具轨迹。正式巡检调查由 QualityFlow 的 LangGraph 流程执行，用户可在同一页用 DSH 生成独立的巡检简报。管理员可以从同一入口管理独立的 DSH 配置。
 
 ## 本地安装环境
 
@@ -22,6 +22,14 @@ API 默认从 `STORAGE_ROOT/dsh-runtime` 读取 CLI 和 pnpm。若 CLI 装在别
 当前目录提供项目内置的 `@qualityflow/dsh-connector`。它注册 `qualityflow_health`，通过固定的本机 `GET http://127.0.0.1:8000/healthz` 检查 API，无需模型密钥。插件安装只接受此目录中的固定包，服务端调用官方 `dsh plugin`，安装环境与 QualityFlow 的账号、数据库和模型凭据隔离。
 
 命令行可用 `dsh --profile qualityflow --dump-config` 核对配置中的 `qualityflow-connector` 条目。运行该命令前，将 `DSH_HOME` 指向对应的 `STORAGE_ROOT/dsh-console/<tenant-key>`，其中 `tenant-key` 是租户 ID 的 SHA-256 十六进制字符串前 24 位。CLI 管理命令和加载行为见 [DeepSeek Harness CLI 文档](https://github.com/deepseek-ai/deepseek-harness/blob/master/apps/cli/reference/README.md#plugin-management)。
+
+## 使用原生 DSH 巡检工具
+
+工程师、主管或管理员可以在 **DSH 控制台 → 调查会话** 打开已有检测结论的任务，点击 **生成简报**。后端为该任务准备一份字段受限的快照，包含检测结论、批次和最多五条同产品历史。DSH 在独立的临时 headless 环境中通过 `qualityflow_inspection_context` 读取快照，生成中文简报。只有实际完成工具调用的运行才会返回简报。简报仅供参考，正式报告、审批和工单按业务流程管理。
+
+模型凭据从服务端的 `DSH_INSPECTION_API_KEY` 读取。若 `LLM_BASE_URL` 指向 `https://api.deepseek.com/anthropic`，也可以复用 `LLM_API_KEY`。模型默认是 `deepseek-v4-flash`，可用 `DSH_INSPECTION_MODEL` 指定。生成简报时，允许的任务数据会作为工具结果发送到 DeepSeek。运行目录在结束后清理，页面只接收简报文本。
+
+原生工具实现在 `inspection/inspection.mjs`，通过 Cordis 覆盖配置加载。配置限制模型可见工具，执行守卫同时拒绝目录以外的调用。服务端控制任务和历史记录的范围，模型调用时无需提供任务 ID、租户 ID 或业务账号凭据。[DSH 原生工具开发参考](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/cookbook/adding-a-tool.md)。
 
 ## 测试
 

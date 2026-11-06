@@ -28,7 +28,39 @@ function Notice({ children, error = false }) {
   return <p className={`dsh-notice${error ? ' is-error' : ''}`} role={error ? 'alert' : 'status'}>{children}</p>
 }
 
-function Investigation({ task, token, request, openTask }) {
+function InspectionBrief({ taskId, token, request }) {
+  const [brief, setBrief] = useState('')
+  const [error, setError] = useState('')
+  const [pending, setPending] = useState(false)
+
+  async function generate() {
+    setPending(true)
+    setError('')
+    setBrief('')
+    try {
+      const result = await request(`/inspections/${encodeURIComponent(taskId)}/dsh-brief`, token, { method: 'POST' })
+      setBrief(result.brief)
+    } catch (reason) {
+      setError(reason.message)
+    } finally {
+      setPending(false)
+    }
+  }
+
+  return <section className="dsh-brief">
+    <div className="dsh-section-head"><h3>DSH 巡检简报</h3>
+      <button className="dsh-button dsh-primary" disabled={pending} onClick={generate}>
+        {pending ? '正在生成…' : '生成简报'}
+      </button>
+    </div>
+    <p>将本任务的检测结论、批次和同产品历史发给 DeepSeek 生成简报，供人工参考。</p>
+    {pending && <Notice>DSH 正在调用巡检工具并生成简报…</Notice>}
+    {error && <Notice error>{error}</Notice>}
+    {brief && <div className="dsh-brief-result" aria-live="polite"><small>DeepSeek Harness · 巡检工具已调用</small><p>{brief}</p></div>}
+  </section>
+}
+
+function Investigation({ task, token, request, openTask, role }) {
   const [record, setRecord] = useState(null)
   const [version, setVersion] = useState(null)
   const [revision, setRevision] = useState(0)
@@ -67,6 +99,8 @@ function Investigation({ task, token, request, openTask }) {
       <div><dt>检测结论</dt><dd>{statusText(task.detection_status)}</dd></div>
       <div><dt>执行方式</dt><dd>{task.execution?.mode === 'llm' ? 'AI 调查' : task.execution?.mode === 'mock' ? '模拟调查' : '—'}</dd></div>
     </dl>
+    {['ENGINEER', 'MANAGER', 'ADMIN'].includes(role) && ['NORMAL', 'ABNORMAL', 'UNCERTAIN'].includes(task.detection_status) &&
+      <InspectionBrief taskId={taskId} token={token} request={request} />}
     <div className="dsh-section-head dsh-version-row">
       <label>报告版本 <select value={currentVersion} onChange={event => setVersion(Number(event.target.value))}>
         {versions.map(value => <option key={value} value={value}>v{value}</option>)}
@@ -97,7 +131,7 @@ function Investigation({ task, token, request, openTask }) {
   </article>
 }
 
-function Sessions({ tasks, loading, listError, reload, token, request, openTask }) {
+function Sessions({ tasks, loading, listError, reload, token, request, openTask, role }) {
   const [query, setQuery] = useState('')
   const [taskId, setTaskId] = useState(null)
   const search = query.trim().toLowerCase()
@@ -118,7 +152,7 @@ function Sessions({ tasks, loading, listError, reload, token, request, openTask 
         {filtered.length === 0 && !listError && <Notice>{loading ? '正在加载会话…' : search ? '没有匹配的巡检任务。' : '暂无可查看的巡检任务。'}</Notice>}
       </div>
     </aside>
-    {task ? <Investigation key={task.task_id} task={task} token={token} request={request} openTask={openTask} />
+    {task ? <Investigation key={task.task_id} task={task} token={token} request={request} openTask={openTask} role={role} />
       : <div className="dsh-empty"><span aria-hidden="true">›_</span><h2>调查工作区</h2><p>选择一条巡检会话，查看报告版本与工具轨迹。</p></div>}
   </div>
 }
@@ -216,13 +250,13 @@ export default function DshConsole({ tasks, loading, listError, reload, role, to
     <header className="dsh-hero">
       <div><p className="dsh-kicker">DEEPSEEK HARNESS · QUALITYFLOW</p>
         <h1>DSH 控制台</h1><p>查看巡检调查轨迹，管理 DeepSeek Harness 插件。</p></div>
-      <span className="dsh-engine"><span /> 巡检执行 · LangGraph</span>
+      <span className="dsh-engine"><span /> 正式调查 · LangGraph</span>
     </header>
     {admin && <div className="dsh-switch" role="group" aria-label="控制台视图">
       <button aria-pressed={!plugins} onClick={() => setView('sessions')}>调查会话</button>
       <button aria-pressed={plugins} onClick={() => { setPluginsVisited(true); setView('plugins') }}>插件管理</button>
     </div>}
-    <div hidden={plugins}><Sessions {...{ tasks, loading, listError, reload, token, request, openTask }} /></div>
+    <div hidden={plugins}><Sessions {...{ tasks, loading, listError, reload, token, request, openTask, role }} /></div>
     {admin && pluginsVisited && <div hidden={!plugins}><Plugins token={token} request={request} /></div>}
   </section>
 }

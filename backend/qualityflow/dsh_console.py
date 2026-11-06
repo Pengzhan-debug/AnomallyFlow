@@ -50,6 +50,17 @@ def read_manifest(path: Path) -> dict:
     raise DshConsoleError(503, "DSH_MANIFEST_UNREADABLE", "无法读取 DSH 插件清单，请检查服务端配置。")
 
 
+def isolated_environment(home: Path, path: str) -> dict[str, str]:
+    permitted = {
+        "PATHEXT", "SYSTEMROOT", "WINDIR", "SYSTEMDRIVE", "COMSPEC",
+        "TEMP", "TMP", "TMPDIR", "LANG", "LC_ALL",
+    }
+    env = {key: value for key, value in os.environ.items() if key.upper() in permitted}
+    env.update(PATH=path, DSH_HOME=str(home), HOME=str(home), USERPROFILE=str(home),
+               APPDATA=str(home / "appdata"), LOCALAPPDATA=str(home / "localappdata"))
+    return env
+
+
 class DshConsole:
     def __init__(self, storage_root: Path):
         self.storage_root = storage_root.resolve()
@@ -128,14 +139,8 @@ class DshConsole:
         store = self.storage_root / "dsh-console" / "pnpm-store"
         args.append(f"--store-dir={store.as_posix()}")
         # Pass platform basics only. The installer needs no model or business credentials.
-        permitted = {
-            "PATH", "PATHEXT", "SYSTEMROOT", "WINDIR", "SYSTEMDRIVE", "COMSPEC",
-            "TEMP", "TMP", "TMPDIR", "LANG", "LC_ALL",
-        }
-        env = {key: value for key, value in os.environ.items() if key.upper() in permitted}
+        env = isolated_environment(home, self.path)
         env.update(
-            PATH=self.path, DSH_HOME=str(home), HOME=str(home), USERPROFILE=str(home),
-            APPDATA=str(home / "appdata"), LOCALAPPDATA=str(home / "localappdata"),
             npm_config_userconfig=str(home / ".npmrc"),
             npm_config_ignore_scripts="true", pnpm_config_ignore_scripts="true",
             npm_config_offline="true", pnpm_config_offline="true",
