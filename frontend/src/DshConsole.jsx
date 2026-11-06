@@ -6,7 +6,7 @@ const statuses = {
   NEEDS_REVIEW: '需人工处理', ORDER_CREATED: '已创建工单', REJECTED: '已驳回',
   NORMAL: '正常', ABNORMAL: '发现异常', UNCERTAIN: '不确定', ERROR: '失败',
   READY: '等待执行', RUNNING: '执行中', SUCCEEDED: '已完成', FAILED: '失败',
-  SUCCESS: '成功', OK: '成功', HIGH: '高风险', MEDIUM: '中风险', LOW: '低风险',
+  SUCCESS: '成功', OK: '成功', EMPTY: '无结果', HIGH: '高风险', MEDIUM: '中风险', LOW: '低风险',
 }
 const toolNames = {
   get_batch_info: '批次查询', get_inspection_history: '检测历史',
@@ -17,7 +17,12 @@ const runtimeLabels = {
   node_missing: '缺少 Node.js', pnpm_missing: '缺少 pnpm',
 }
 const statusText = value => statuses[value] || value || '—'
-const time = value => value ? new Date(value).toLocaleString('zh-CN', { hour12: false }) : '—'
+function time(value) {
+  if (!value) return '—'
+  // SQLite may return the stored UTC timestamp without an offset.
+  const timestamp = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(value) ? value : `${value}Z`
+  return new Date(timestamp).toLocaleString('zh-CN', { hour12: false })
+}
 
 function Notice({ children, error = false }) {
   return <p className={`dsh-notice${error ? ' is-error' : ''}`} role={error ? 'alert' : 'status'}>{children}</p>
