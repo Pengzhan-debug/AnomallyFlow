@@ -1,0 +1,3 @@
+- insert:
+    - id: qualityflow-connector
+      name: "@qualityflow/dsh-connector"

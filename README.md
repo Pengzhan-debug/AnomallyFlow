@@ -131,6 +131,7 @@ PYTHONPATH=.       .venv/bin/python -m pytest detector/tests -q  # 19 passed，�
 | [TESTING.md](TESTING.md) | 测试分层、真实 LLM 联调、留出集评测、并发基线 |
 | [视觉检测接入](design/视觉检测接入.md) | 检测协议、状态判定、进入真实自动检测的条件 |
 | [Agent 接入与恢复](design/Agent接入与恢复.md) | 模型配置、审批暂停与 checkpoint 恢复边界 |
+| [DSH 控制台](integrations/dsh/README.md) | 调查轨迹、管理员插件管理与本地运行步骤 |
 | [DeepSeek Harness 接入设计（草案）](design/DeepSeek-Harness接入设计.md) | 可选调查后端、受限工具网关、三段事务与恢复规则；尚未实现 |
 | [Agent 对照评测设计（草案）](design/Agent对照评测设计.md) | 冻结案例、A/B 控制变量、调查质量与成本指标；尚未执行 |
 | [组件与接口规格](design/组件与接口规格.md) | API、数据模型与状态机 |

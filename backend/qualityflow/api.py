@@ -30,6 +30,7 @@ from .tools import ReadOnlyTools, ToolName
 from .supplements import supplement_hash
 from .detector import DetectorConfigError, detector_config
 from .samples import register_sample_routes
+from .dsh_console import register_dsh_console_routes
 
 
 MAX_IMAGE_BYTES = 20 * 1024 * 1024
@@ -893,6 +894,8 @@ def create_app(
         db.refresh(row)
         return order_payload(db, row)
 
+    register_dsh_console_routes(app, storage_root=storage_root, db_session=db_session,
+                                current_user=current_user, require_role=require_role, api_error=APIError)
     return app
 
 

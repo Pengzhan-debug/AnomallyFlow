@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import SampleLibrary from './SampleLibrary.jsx'
 import DetectionPanel from './DetectionPanel.jsx'
+import DshConsole from './DshConsole.jsx'
 
 const labels = {
   PENDING: '排队中', INVESTIGATING: '调查中', COMPLETED: '检测完成', WAITING_APPROVAL: '待审批',
@@ -489,6 +490,7 @@ export default function App() {
   const nav = [
     { id: 'overview', icon: '▦', text: '任务总览' },
     { id: 'samples', icon: '▧', text: '视觉样本库' },
+    { id: 'dsh', icon: '⌘', text: 'DSH 控制台' },
     ...(role === 'INSPECTOR' ? [{ id: 'new', icon: '＋', text: '新建检测' }] : []),
     ...(['ENGINEER', 'MANAGER', 'AUDITOR'].includes(role) ? [{ id: 'approvals', icon: '◇', text: '审批中心' }] : []),
     ...(['INSPECTOR', 'ENGINEER', 'MANAGER', 'AUDITOR'].includes(role) ? [{ id: 'orders', icon: '▤', text: '工单中心' }] : []),
@@ -505,6 +507,8 @@ export default function App() {
       <main>{view === 'overview' && <Overview tasks={tasks} loading={loading} error={listError} reload={loadTasks} openTask={openTask} />}
         {view === 'new' && <NewInspection token={token} batches={batches} onCreated={openTask} />}
         {view === 'samples' && <SampleLibrary token={token} role={role} batches={batches} request={request} />}
+        {view === 'dsh' && <DshConsole tasks={tasks} loading={loading} listError={listError} reload={loadTasks}
+          role={role} token={token} request={request} openTask={openTask} />}
         {view === 'detail' && <><button className="back-link" onClick={() => setView('overview')}>← 返回任务总览</button>
           <Message error={detailError} /><Detail task={detail} report={report} approval={approval} order={order} token={token} role={role} reload={loadDetail}
             versions={versions} supplements={supplements} selectedVersion={selectedVersion} selectVersion={setSelectedVersion}

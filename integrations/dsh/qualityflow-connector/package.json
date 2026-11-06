@@ -1,0 +1,11 @@
+{
+  "name": "@qualityflow/dsh-connector",
+  "version": "0.1.0",
+  "description": "Read-only QualityFlow service health tool for DeepSeek Harness",
+  "type": "module",
+  "exports": "./index.js",
+  "files": ["index.js", "cordis.patch.yml"],
+  "dsh": {
+    "bundle": { "patch": "./cordis.patch.yml" }
+  }
+}
